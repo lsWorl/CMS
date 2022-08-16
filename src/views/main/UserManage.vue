@@ -1,5 +1,5 @@
 <template>
-  <div >
+  <div>
     <div style="overflow:hidden;">
       <el-breadcrumb separator="/">
         <el-breadcrumb-item :to="{ path: '/index/userManage' }">系统管理</el-breadcrumb-item>
@@ -22,8 +22,8 @@
         </el-input>
       </div>
 
-      <div class="">
-        <Form></Form>
+      <div>
+        <Form :barTitle="tableTitle" :tableData="tableData"></Form>
       </div>
     </div>
 
@@ -37,16 +37,97 @@ import { watch } from "@vue/runtime-core";
 import { ElMessage } from 'element-plus'
 
 import '../../components/Form.vue'
-import '../../components/Form.vue'
+import { User } from '../../interface/UserManageType'
+import { BarType } from '../../interface/FormInterType'
 // 文本框内容
-const SearchContent = ref('')
+const SearchContent = ref<string>('')
 // 选中的文本框的index
-const selected = ref('')
+const selected = ref<string>('')
+
+// 表格标题
+const tableTitle = ref<BarType[]>([
+  {
+    name: '用户注册日期',
+    props: 'date',
+  },
+  {
+    name: '姓名',
+    props: 'name',
+  },
+  {
+    name: '手机号',
+    props: 'phone',
+  },
+  {
+    name: '地址',
+    props: 'address',
+  },
+])
+
+// 表格内容
+const tableData = ref<User[]>([
+  {
+    date: '2016-05-03',
+    name: 'Tom',
+    phone: '13968926964',
+    address: 'No. 189, Grove St, Los Angeles',
+  },
+  {
+    date: '2016-05-03',
+    name: 'Tom',
+    phone: '13968926964',
+    address: 'No. 189, Grove St, Los Angeles',
+  },
+  {
+    date: '2016-05-03',
+    name: 'Tom',
+    phone: '13968926964',
+    address: 'No. 189, Grove St, Los Angeles',
+  },
+  {
+    date: '2016-05-03',
+    name: 'Tom',
+    phone: '13968926964',
+    address: 'No. 189, Grove St, Los Angeles',
+  },
+  {
+    date: '2016-05-03',
+    name: 'Tom',
+    phone: '13968926964',
+    address: 'No. 189, Grove St, Los Angeles',
+  },
+  {
+    date: '2016-05-03',
+    name: 'Tom',
+    phone: '13968926964',
+    address: 'No. 189, Grove St, Los Angeles',
+  },
+  {
+    date: '2016-05-03',
+    name: 'Tom',
+    phone: '13968926964',
+    address: 'No. 189, Grove St, Los Angeles',
+  },
+  {
+    date: '2016-05-03',
+    name: 'Tom',
+    phone: '13968926964',
+    address: 'No. 189, Grove St, Los Angeles',
+  },
+  {
+    date: '2016-05-03',
+    name: 'Tom',
+    phone: '13968926964',
+    address: 'No. 189, Grove St, Los Angeles',
+  },
+])
+
 
 watch(SearchContent, () => {
   // console.log(selected.value)
 })
 
+// 选择输入框的类型
 const SelectData = () => {
   if (selected.value === '') {
     ElMessage({

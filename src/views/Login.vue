@@ -15,8 +15,8 @@
             <el-radio label="2" size="large">用户</el-radio>
           </el-radio-group>
         </div>
-        <div class="noaccount animate__animated padding-lr-10" :class="{ 'animate__pulse': animate }" @mouseleave="HideAnimate()"
-          @mouseover="ShowAnimate()" @click="ShowRegistry()">无账号，请先注册</div>
+        <div class="noaccount animate__animated padding-lr-10" :class="{ 'animate__pulse': animate }"
+          @mouseleave="HideAnimate()" @mouseover="ShowAnimate()" @click="ShowRegistry()">无账号，请先注册</div>
       </div>
 
       <div class="input margin-top-30">
@@ -40,7 +40,7 @@
           <div style="width:80px">确认密码:</div>
           <el-input class=" padding-lr-15" v-model="input" placeholder="请输入密码" />
         </div>
-        
+
         <template #footer>
           <span class="dialog-footer">
             <el-button @click="dialogVisible = false">取消</el-button>
@@ -60,30 +60,30 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
-const input = ref('')
-const radio1 = ref('1')
+const input = ref<string>('')
+const radio1 = ref<string>('1')
 // 控制动画是否显示
-const animate = ref(false)
+const animate = ref<boolean>(false)
 
 // 展示动画
-const ShowAnimate = () => {
+const ShowAnimate = (): void => {
   animate.value = true
 }
 // 隐藏动画
-const HideAnimate = () => {
+const HideAnimate = (): void => {
   animate.value = false
 }
 
 
 // 是否展示注册框
-const dialogVisible = ref(false)
+const dialogVisible = ref<boolean>(false)
 // 展示对话框
-const ShowRegistry = () => {
+const ShowRegistry = (): void => {
   dialogVisible.value = true
 }
 
 // 登录
-const Login = ()=>{
+const Login = (): void => {
   router.push('/index')
 }
 
