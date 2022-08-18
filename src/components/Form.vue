@@ -15,21 +15,22 @@
       <el-pagination small background layout="prev, pager, next" :total="100" />
     </div>
 
+    <!-- 弹窗部分 -->
     <el-dialog v-model="dialogFormVisible" title="编辑">
-      <el-form ref="ruleFormRef" >
+      <el-form  >
         <el-form-item :label-width="formLabelWidth" v-for="item in barTitle" :key="item"
           :label="item.name != '权限' ? item.name : ''" >
-          <el-input  v-if="item.props != 'permissions'" autocomplete="off" />
+          <el-input  v-if="item.props != 'permissions'" v-model="form[item.props]" autocomplete="off" />
           <el-form-item v-if="item.props === 'permissions'" label="权限">
-            <el-select placeholder="请选择类型">
-              <el-option label="管理员" value="admin" />
-              <el-option label="普通用户" value="user" />
+            <el-select placeholder="请选择类型" v-model="selected">
+              <el-option label="管理员" value="管理员" />
+              <el-option label="普通用户" value="普通用户" />
             </el-select>
           </el-form-item>
         </el-form-item>
         <el-form-item :label-width="formLabelWidth">
-          <el-button type="primary" @click="submitForm(ruleFormRef)">Submit</el-button>
-          <el-button @click="resetForm(ruleFormRef)">Reset</el-button>
+          <el-button type="primary" @click="submitForm()">Submit</el-button>
+          <el-button @click="resetForm()">Reset</el-button>
         </el-form-item>
 
       </el-form>
@@ -43,6 +44,12 @@ import { ref, reactive } from 'vue'
 import { BarType } from '../interface/FormInterType'
 import type { FormInstance } from 'element-plus'
 
+const ruleForm = ref({
+  name: '',
+  checkPass: '',
+  age: '',
+})
+
 // 对类型进行限制
 interface Props {
   barTitle: Array<BarType>,
@@ -55,100 +62,67 @@ const props = withDefaults(defineProps<Props>(), {
   tableData: () => []
 })
 
-interface User {
-  date: string
-  name: string
-  address: string
-}
+// 点击编辑按钮后的模态框
+const dialogFormVisible = ref<boolean>(false)
+// 输入框width
+const formLabelWidth: string = '140px'
+// 选择的类型
+const selected = ref('')
+// 触发事件，将数据传递给父组件
+const emit = defineEmits<{
+  (e:'submitForm', value:object,index:number):void,
+  (e:'delete',index:number):void
+}>()
+
+
 
 // 选择要编辑的索引值
 let indexEdit = ref<number>(0)
-console.log(props.tableData[0])
-const form = reactive({
-  pass: '',
-  checkPass: '',
-  age: '',
-})
+// console.log(props.tableData[0])
 
-const checkAge = (rule: any, value: any, callback: any) => {
-  if (!value) {
-    return callback(new Error('Please input the age'))
-  }
-  setTimeout(() => {
-    if (!Number.isInteger(value)) {
-      callback(new Error('Please input digits'))
-    } else {
-      if (value < 18) {
-        callback(new Error('Age must be greater than 18'))
-      } else {
-        callback()
-      }
-    }
-  }, 1000)
-}
-
-const validatePass = (rule: any, value: any, callback: any) => {
-  if (value === '') {
-    callback(new Error('Please input the password'))
-  } else {
-    if (form.checkPass !== '') {
-      if (!ruleFormRef.value) return
-      ruleFormRef.value.validateField('checkPass', () => null)
-    }
-    callback()
-  }
-}
-const validatePass2 = (rule: any, value: any, callback: any) => {
-  if (value === '') {
-    callback(new Error('Please input the password again'))
-  } else if (value !== form.pass) {
-    callback(new Error("Two inputs don't match!"))
-  } else {
-    callback()
-  }
-}
-
-
-
-const handleEdit = (index: number, row: User) => {
+// 用来编辑表格数据
+let form = ref<any>({})
+// 点击编辑按钮的回调
+const handleEdit = (index: number, row: BarType) => {
   dialogFormVisible.value = true
   indexEdit.value = index
-  console.log(index, row)
+  // 深拷贝
+  form.value = {...props.tableData[index]}
+  console.log(form.value)
+  // console.log(index, row)
+  
 }
-const handleDelete = (index: number, row: User) => {
+
+
+// 删除事件
+const handleDelete = (index: number, row: BarType) => {
   console.log(index, row)
+  emit('delete',index)
 }
 
 
-const dialogFormVisible = ref<boolean>(false)
-const formLabelWidth: string = '140px'
 
-
-
-// const rules = reactive({
-//   pass: [{ validator: validatePass, trigger: 'blur' }],
-//   checkPass: [{ validator: validatePass2, trigger: 'blur' }],
-//   age: [{ validator: checkAge, trigger: 'blur' }],
-// })
 
 const ruleFormRef = ref<FormInstance>()
-const submitForm = (formEl: FormInstance | undefined) => {
-  console.log(formEl)
-  if (!formEl) return
-  formEl.validate((valid) => {
-    if (valid) {
-      console.log('submit!')
-    } else {
-      console.log('error submit!')
-      return false
-    }
-  })
+const submitForm = () => {
+  // console.log(formEl)
+
+  // 判断是否修改了权限
+  if(selected.value != ''){
+    console.log('权限',selected.value)
+    form.value['permissions'] = selected.value
+  }
+  emit('submitForm',form.value,indexEdit.value)
+  
+  dialogFormVisible.value = false
 }
 
-const resetForm = (formEl: FormInstance | undefined) => {
-  if (!formEl) return
-  formEl.resetFields()
+// 重置
+const resetForm = ()=>{
+  selected.value = ''
 }
+
+
 
 </script>
 

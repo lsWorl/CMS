@@ -24,7 +24,7 @@
       </div>
 
       <div>
-        <Form :barTitle="tableTitle" :tableData="tableData"></Form>
+        <Form @submitForm ="changeValue" :barTitle="tableTitle" :tableData="tableData"></Form>
       </div>
     </div>
 
@@ -32,7 +32,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from "vue";
+import { reactive, ref } from "vue";
 import { ElMessage } from 'element-plus'
 import { Search } from '@element-plus/icons-vue'
 
@@ -62,6 +62,13 @@ const SelectData = () => {
   }
 }
 
+// 提交表单后修改数据
+const changeValue = (item:User,index:number)=>{
+  // console.log(item,index)
+  console.log(tableData[index])
+  tableData[index] = item
+}
+
 // 表格标题
 const tableTitle = ref<BarType[]>([
   {
@@ -75,12 +82,11 @@ const tableTitle = ref<BarType[]>([
 ])
 
 // 表格内容
-const tableData = ref<User[]>([
+const tableData = reactive<User[]>([
   {
     name: 'Tom',
     permissions: '管理员',
-  },
-  
+  }, 
 ])
 </script>
 

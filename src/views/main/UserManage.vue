@@ -23,7 +23,7 @@
       </div>
 
       <div>
-        <Form :barTitle="tableTitle" :tableData="tableData"></Form>
+        <Form @submitForm ="changeValue" :barTitle="tableTitle" :tableData="tableData"></Form>
       </div>
     </div>
 
@@ -31,7 +31,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from "@vue/reactivity";
+import { ref , reactive } from "@vue/reactivity";
 import { Search } from '@element-plus/icons-vue'
 import { watch } from "@vue/runtime-core";
 import { ElMessage } from 'element-plus'
@@ -39,6 +39,13 @@ import { ElMessage } from 'element-plus'
 import '../../components/Form.vue'
 import { User } from '../../interface/UserManageType'
 import { BarType } from '../../interface/FormInterType'
+// 提交表单后修改数据
+const changeValue = (item:User,index:number)=>{
+  // console.log(item,index)
+  // console.log(tableData[index])
+  tableData[index] = item
+}
+
 // 文本框内容
 const SearchContent = ref<string>('')
 // 选中的文本框的index
@@ -65,7 +72,7 @@ const tableTitle = ref<BarType[]>([
 ])
 
 // 表格内容
-const tableData = ref<User[]>([
+const tableData:User[] = reactive([
   {
     date: '2016-05-03',
     name: 'Tom',
@@ -73,13 +80,13 @@ const tableData = ref<User[]>([
     address: 'No. 189, Grove St, Los Angeles',
   },
   {
-    date: '2016-05-03',
+    date: '2016-05-04',
     name: 'Tom',
     phone: '13968926964',
     address: 'No. 189, Grove St, Los Angeles',
   },
   {
-    date: '2016-05-03',
+    date: '2016-05-05',
     name: 'Tom',
     phone: '13968926964',
     address: 'No. 189, Grove St, Los Angeles',
