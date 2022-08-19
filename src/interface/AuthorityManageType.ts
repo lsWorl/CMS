@@ -1,6 +1,6 @@
 interface User {
   name:string
-  
+  phone:string
   permissions:string
 }
 

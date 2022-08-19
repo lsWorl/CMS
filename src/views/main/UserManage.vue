@@ -23,7 +23,7 @@
       </div>
 
       <div>
-        <Form @submitForm ="changeValue" :barTitle="tableTitle" :tableData="tableData"></Form>
+        <Form @delete="deleteItem" @submitForm ="changeValue" :barTitle="tableTitle" :tableData="tableData"></Form>
       </div>
     </div>
 
@@ -129,10 +129,10 @@ const tableData:User[] = reactive([
   },
 ])
 
-
-watch(SearchContent, () => {
-  // console.log(selected.value)
-})
+// 删除数据
+const deleteItem = (index:number)=>{
+  console.log(index)
+}
 
 // 选择输入框的类型
 const SelectData = () => {

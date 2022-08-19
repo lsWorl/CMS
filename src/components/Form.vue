@@ -96,7 +96,7 @@ const handleEdit = (index: number, row: BarType) => {
 
 // 删除事件
 const handleDelete = (index: number, row: BarType) => {
-  console.log(index, row)
+  // console.log(index, row)
   emit('delete',index)
 }
 
@@ -120,6 +120,12 @@ const submitForm = () => {
 // 重置
 const resetForm = ()=>{
   selected.value = ''
+
+  Object.keys(form.value).forEach(key=>{
+    form.value[key] = ''
+  })
+  
+  
 }
 
 
@@ -135,5 +141,6 @@ const resetForm = ()=>{
   height: 410px;
   overflow-y: auto;
   // overflow-y: scroll;
+  justify-content: space-between;
 }
 </style>

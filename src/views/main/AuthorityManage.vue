@@ -24,7 +24,7 @@
       </div>
 
       <div>
-        <Form @submitForm ="changeValue" :barTitle="tableTitle" :tableData="tableData"></Form>
+        <Form @delete="deleteItem" @submitForm ="changeValue" :barTitle="tableTitle" :tableData="tableData"></Form>
       </div>
     </div>
 
@@ -68,12 +68,19 @@ const changeValue = (item:User,index:number)=>{
   console.log(tableData[index])
   tableData[index] = item
 }
-
+// 删除数据
+const deleteItem = (index:number)=>{
+  console.log(index)
+}
 // 表格标题
 const tableTitle = ref<BarType[]>([
   {
     name: '姓名',
     props: 'name',
+  },
+  {
+    name: '手机号',
+    props: 'phone',
   },
   {
     name: '权限',
@@ -85,6 +92,7 @@ const tableTitle = ref<BarType[]>([
 const tableData = reactive<User[]>([
   {
     name: 'Tom',
+    phone:'1396896354',
     permissions: '管理员',
   }, 
 ])
