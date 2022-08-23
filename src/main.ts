@@ -8,4 +8,7 @@ import 'animate.css'
 import './assets/css/global.scss'
 import 'element-plus/dist/index.css'
 
-createApp(App).use(router).mount('#app')
+
+const app = createApp(App)
+
+app.use(router).mount('#app')

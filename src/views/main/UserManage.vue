@@ -33,17 +33,34 @@
 <script lang="ts" setup>
 import { ref , reactive } from "@vue/reactivity";
 import { Search } from '@element-plus/icons-vue'
-import { watch } from "@vue/runtime-core";
+import {  watch } from "@vue/runtime-core";
 import { ElMessage } from 'element-plus'
 
 import '../../components/Form.vue'
 import { User } from '../../interface/UserManageType'
 import { BarType } from '../../interface/FormInterType'
+
+import http from '../../http/http'
+
+// 向后端请求用户信息
+http.get('/users').then(res=>{
+  // console.log(res.data)
+  if(res.data.code===1){
+    res.data.data.forEach((el:User) => {
+      tableData.push(el)
+      console.log(new Date(el.date).toLocaleDateString())
+    })
+  }
+})
+
 // 提交表单后修改数据
 const changeValue = (item:User,index:number)=>{
   // console.log(item,index)
-  // console.log(tableData[index])
+  
   tableData[index] = item
+  console.log(item)
+  
+  http.put('/users',item)
 }
 
 // 文本框内容
@@ -72,62 +89,7 @@ const tableTitle = ref<BarType[]>([
 ])
 
 // 表格内容
-const tableData:User[] = reactive([
-  {
-    date: '2016-05-03',
-    name: 'Tom',
-    phone: '13968926964',
-    address: 'No. 189, Grove St, Los Angeles',
-  },
-  {
-    date: '2016-05-04',
-    name: 'Tom',
-    phone: '13968926964',
-    address: 'No. 189, Grove St, Los Angeles',
-  },
-  {
-    date: '2016-05-05',
-    name: 'Tom',
-    phone: '13968926964',
-    address: 'No. 189, Grove St, Los Angeles',
-  },
-  {
-    date: '2016-05-03',
-    name: 'Tom',
-    phone: '13968926964',
-    address: 'No. 189, Grove St, Los Angeles',
-  },
-  {
-    date: '2016-05-03',
-    name: 'Tom',
-    phone: '13968926964',
-    address: 'No. 189, Grove St, Los Angeles',
-  },
-  {
-    date: '2016-05-03',
-    name: 'Tom',
-    phone: '13968926964',
-    address: 'No. 189, Grove St, Los Angeles',
-  },
-  {
-    date: '2016-05-03',
-    name: 'Tom',
-    phone: '13968926964',
-    address: 'No. 189, Grove St, Los Angeles',
-  },
-  {
-    date: '2016-05-03',
-    name: 'Tom',
-    phone: '13968926964',
-    address: 'No. 189, Grove St, Los Angeles',
-  },
-  {
-    date: '2016-05-03',
-    name: 'Tom',
-    phone: '13968926964',
-    address: 'No. 189, Grove St, Los Angeles',
-  },
-])
+const tableData:User[] = reactive([])
 
 // 删除数据
 const deleteItem = (index:number)=>{
