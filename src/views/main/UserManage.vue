@@ -8,7 +8,7 @@
     </div>
     <el-divider class="margin-top-10 margin-bottom-10" />
     <div>
-      <div>
+      <div class="flex flex-around">
         <el-input clearable maxlength="18" v-model="SearchContent" placeholder="请输入" class="input-with-select">
           <template #prepend>
             <el-select v-model="selected" placeholder="请选择" style="width: 115px">
@@ -20,6 +20,7 @@
             <el-button :icon="Search" @click="SelectData" />
           </template>
         </el-input>
+        <el-button >增加</el-button>
       </div>
 
       <div>
@@ -41,14 +42,16 @@ import { User } from '../../interface/UserManageType'
 import { BarType } from '../../interface/FormInterType'
 
 import http from '../../http/http'
+import {FormatT} from '../../util/TimeFormat'
 
 // 向后端请求用户信息
 http.get('/users').then(res=>{
   // console.log(res.data)
   if(res.data.code===1){
+    // console.log(res.data.data[0])
     res.data.data.forEach((el:User) => {
+      el.date = FormatT(el.date)
       tableData.push(el)
-      console.log(new Date(el.date).toLocaleDateString())
     })
   }
 })
@@ -70,6 +73,10 @@ const selected = ref<string>('')
 
 // 表格标题
 const tableTitle = ref<BarType[]>([
+  {
+    name:'用户id',
+    props:'id'
+  },
   {
     name: '用户注册日期',
     props: 'date',

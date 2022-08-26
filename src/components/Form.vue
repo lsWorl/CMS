@@ -16,11 +16,11 @@
     </div>
 
     <!-- 弹窗部分 -->
-    <el-dialog v-model="dialogFormVisible" title="编辑">
-      <el-form  >
+    <!-- <el-dialog v-model="dialogFormVisible" title="编辑">
+      <el-form>
         <el-form-item :label-width="formLabelWidth" v-for="item in barTitle" :key="item"
-          :label="item.name != '权限' ? item.name : ''" >
-          <el-input  v-if="item.props != 'permissions'" v-model="form[item.props]" autocomplete="off" />
+          :label="item.name != '权限' ? item.name : ''">
+          <el-input v-if="item.props != 'permissions'" v-model="form[item.props]" autocomplete="off" />
           <el-form-item v-if="item.props === 'permissions'" label="权限">
             <el-select placeholder="请选择类型" v-model="selected">
               <el-option label="管理员" value="管理员" />
@@ -32,10 +32,9 @@
           <el-button type="primary" @click="submitForm()">Submit</el-button>
           <el-button @click="resetForm()">Reset</el-button>
         </el-form-item>
-
       </el-form>
-
-    </el-dialog>
+    </el-dialog> -->
+    <Dialog v-if="dialogFormVisible" @dialogShow="dialogFormVisible=false" :dialogFormVisible="dialogFormVisible" :barTitle="barTitle" :tableData="form"></Dialog>
   </div>
 </template>
 
@@ -44,6 +43,8 @@ import { ref, reactive } from 'vue'
 import { BarType } from '../interface/FormInterType'
 import type { FormInstance } from 'element-plus'
 
+import '../components/Dialog.vue'
+import '../components/Dialog.vue';
 const ruleForm = ref({
   name: '',
   checkPass: '',
@@ -64,14 +65,12 @@ const props = withDefaults(defineProps<Props>(), {
 
 // 点击编辑按钮后的模态框
 const dialogFormVisible = ref<boolean>(false)
-// 输入框width
-const formLabelWidth: string = '140px'
 // 选择的类型
 const selected = ref('')
 // 触发事件，将数据传递给父组件
 const emit = defineEmits<{
-  (e:'submitForm', value:object,index:number):void,
-  (e:'delete',index:number):void
+  (e: 'submitForm', value: object, index: number): void,
+  (e: 'delete', index: number): void
 }>()
 
 
@@ -87,17 +86,17 @@ const handleEdit = (index: number, row: BarType) => {
   dialogFormVisible.value = true
   indexEdit.value = index
   // 深拷贝
-  form.value = {...props.tableData[index]}
+  form.value = { ...props.tableData[index] }
   console.log(form.value)
   // console.log(index, row)
-  
+
 }
 
 
 // 删除事件
 const handleDelete = (index: number, row: BarType) => {
   // console.log(index, row)
-  emit('delete',index)
+  emit('delete', index)
 }
 
 
@@ -108,24 +107,24 @@ const submitForm = () => {
   // console.log(formEl)
 
   // 判断是否修改了权限
-  if(selected.value != ''){
-    console.log('权限',selected.value)
+  if (selected.value != '') {
+    console.log('权限', selected.value)
     form.value['permissions'] = selected.value
   }
-  emit('submitForm',form.value,indexEdit.value)
-  
+  emit('submitForm', form.value, indexEdit.value)
+
   dialogFormVisible.value = false
 }
 
 // 重置
-const resetForm = ()=>{
+const resetForm = () => {
   selected.value = ''
 
-  Object.keys(form.value).forEach(key=>{
+  Object.keys(form.value).forEach(key => {
     form.value[key] = ''
   })
-  
-  
+
+
 }
 
 
