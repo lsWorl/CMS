@@ -80,7 +80,6 @@ import {
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
-console.log(route)
 const handleOpen = (key: string, keyPath: string[]) => {
   console.log(key, keyPath)
 }

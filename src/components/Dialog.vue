@@ -4,7 +4,8 @@
       <el-form>
         <el-form-item :label-width="formLabelWidth" v-for="item in barTitle" :key="item"
           :label="item.name != '权限' ? item.name : ''">
-          <el-input v-if="item.props != 'permissions'" v-model="form[item.props]" autocomplete="off" />
+          <!-- 如果值为id则不可编辑，值为权限则为选择框 -->
+          <el-input v-if="item.props != 'permissions'" v-model="form[item.props]" maxlength="11" :disabled="item.props=='id'" autocomplete="off" />
           <el-form-item v-if="item.props === 'permissions'" label="权限">
             <el-select placeholder="请选择类型" v-model="selected">
               <el-option label="管理员" value="管理员" />
@@ -28,6 +29,11 @@ import { BarType } from '../interface/FormInterType'
 
 onBeforeMount(()=>{
   console.log('挂载',props.tableData)
+  // id自增
+  if(JSON.stringify(props.tableData)==='[]'){
+    console.log(props.idSum)
+    props.tableData.id = props.idSum + 1
+  }
   form.value = props.tableData
 })
 // 输入框width
@@ -38,15 +44,18 @@ const selected = ref('')
 interface Props {
   barTitle: Array<BarType>,
   // 传数据
-  tableData:object,
+  tableData?:any,
   dialogFormVisible:boolean,
+  idSum?:number
 
 }
+
 // 提供初始值
 const props = withDefaults(defineProps<Props>(), {
   barTitle: () => [],
   tableData: () => [],
-  dialogFormVisible:false
+  dialogFormVisible:false,
+  idSum:0
 })
 // 触发事件，将数据传递给父组件
 const emit = defineEmits<{
@@ -67,7 +76,7 @@ const submitForm = () => {
   }
   emit('submitForm', form.value)
 
-  emit('dialogShow')
+  // emit('dialogShow')
 }
 
 // 重置

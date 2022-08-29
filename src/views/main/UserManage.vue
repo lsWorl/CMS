@@ -20,11 +20,17 @@
             <el-button :icon="Search" @click="SelectData" />
           </template>
         </el-input>
-        <el-button >增加</el-button>
+        <el-button @click="dialogFormVisible = true">增加</el-button>
       </div>
 
       <div>
-        <Form @delete="deleteItem" @submitForm ="changeValue" :barTitle="tableTitle" :tableData="tableData"></Form>
+        <Form @dialogShow="EditDialog" :dialogIsShow="formDialogShow" @delete="deleteItem" @submitForm="changeValue"
+          :barTitle="tableTitle" :tableData="tableData"></Form>
+      </div>
+
+      <div>
+        <Dialog :idSum="tableData.length" v-if="dialogFormVisible" @dialogShow="dialogFormVisible = false"
+          :barTitle="tableTitle" @submitForm="AddUser" :dialogFormVisible="dialogFormVisible"></Dialog>
       </div>
     </div>
 
@@ -32,24 +38,29 @@
 </template>
 
 <script lang="ts" setup>
-import { ref , reactive } from "@vue/reactivity";
+import { ref, reactive } from "@vue/reactivity";
 import { Search } from '@element-plus/icons-vue'
-import {  watch } from "@vue/runtime-core";
+import { watch } from "@vue/runtime-core";
 import { ElMessage } from 'element-plus'
 
 import '../../components/Form.vue'
+import '../../components/Dialog.vue'
 import { User } from '../../interface/UserManageType'
 import { BarType } from '../../interface/FormInterType'
 
 import http from '../../http/http'
-import {FormatT} from '../../util/TimeFormat'
+import { FormatT } from '../../util/TimeFormat'
+import { ObjectIsEqual } from '../../util/IsEqual'
+import { PhoneVerify , DateVerify} from '../../util/Verify'
+
+import { fa } from "element-plus/es/locale";
 
 // 向后端请求用户信息
-http.get('/users').then(res=>{
+http.get('/users').then(res => {
   // console.log(res.data)
-  if(res.data.code===1){
+  if (res.data.code === 1) {
     // console.log(res.data.data[0])
-    res.data.data.forEach((el:User) => {
+    res.data.data.forEach((el: User) => {
       el.date = FormatT(el.date)
       tableData.push(el)
     })
@@ -57,13 +68,32 @@ http.get('/users').then(res=>{
 })
 
 // 提交表单后修改数据
-const changeValue = (item:User,index:number)=>{
-  // console.log(item,index)
-  
-  tableData[index] = item
-  console.log(item)
-  
-  http.put('/users',item)
+const changeValue = (item: User, index: number) => {
+
+  if (ObjectIsEqual(tableData[index], item)) {
+    ElMessage({
+      type: 'error',
+      message: `数据没有发生变化！`,
+    })
+    return
+  }
+  if(!DateVerify(item['date'])){
+    ElMessage({
+      type: 'error',
+      message: `日期格式不正确！`,
+    })
+    return
+  }
+  if (!PhoneVerify(item['phone'])) {
+    ElMessage({
+      type: 'error',
+      message: `输入的不是手机号！`,
+    })
+    return
+  }
+
+  formDialogShow.value = false
+  // http.post('/users', item)
 }
 
 // 文本框内容
@@ -71,11 +101,20 @@ const SearchContent = ref<string>('')
 // 选中的文本框的index
 const selected = ref<string>('')
 
+// 表单中点编辑后的模态框是否展示
+const formDialogShow = ref<boolean>(false)
+
+
+// 表单中的模态框显示控制
+const EditDialog = (show: boolean) => {
+  formDialogShow.value = show
+}
+
 // 表格标题
 const tableTitle = ref<BarType[]>([
   {
-    name:'用户id',
-    props:'id'
+    name: '用户id',
+    props: 'id'
   },
   {
     name: '用户注册日期',
@@ -96,10 +135,10 @@ const tableTitle = ref<BarType[]>([
 ])
 
 // 表格内容
-const tableData:User[] = reactive([])
+const tableData: User[] = reactive([])
 
 // 删除数据
-const deleteItem = (index:number)=>{
+const deleteItem = (index: number) => {
   console.log(index)
 }
 
@@ -118,6 +157,16 @@ const SelectData = () => {
 
   }
 }
+
+// 添加窗口是否显示
+const dialogFormVisible = ref(false)
+// 添加用户
+const AddUser = (value: User) => {
+  console.log(value)
+  http.put('/users', value)
+}
+
+// 将表单提交
 </script>
 
 <style lang="scss" scoped>

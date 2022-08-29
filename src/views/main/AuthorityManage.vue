@@ -24,7 +24,7 @@
       </div>
 
       <div>
-        <Form @delete="deleteItem" @submitForm ="changeValue" :barTitle="tableTitle" :tableData="tableData"></Form>
+        <Form @dialogShow="EditDialog" :dialogIsShow="formDialogShow" @delete="deleteItem" @submitForm="changeValue" :barTitle="tableTitle" :tableData="tableData"></Form>
       </div>
     </div>
 
@@ -40,6 +40,8 @@ import '../../components/Form.vue'
 
 import { BarType } from '../../interface/FormInterType'
 import { User } from '../../interface/AuthorityManageType'
+
+import { ObjectIsEqual } from '../../util/IsEqual'
 
 // 文本框内容
 const SearchContent = ref<string>('')
@@ -62,9 +64,27 @@ const SelectData = () => {
   }
 }
 
+// 表单中点编辑后的模态框是否展示
+const formDialogShow = ref<boolean>(false)
+
+
+// 表单中的模态框显示控制
+const EditDialog = (show:boolean)=>{
+  formDialogShow.value = show
+}
+
 // 提交表单后修改数据
 const changeValue = (item:User,index:number)=>{
   // console.log(item,index)
+  if (ObjectIsEqual(tableData[index],item)) {
+    ElMessage({
+      type: 'error',
+      message: `数据没有发生变化！`,
+    })
+    
+    return
+  }
+  formDialogShow.value = false
   console.log(tableData[index])
   tableData[index] = item
 }

@@ -14,34 +14,16 @@
     <div class="margin-top-16">
       <el-pagination small background layout="prev, pager, next" :total="100" />
     </div>
-
-    <!-- 弹窗部分 -->
-    <!-- <el-dialog v-model="dialogFormVisible" title="编辑">
-      <el-form>
-        <el-form-item :label-width="formLabelWidth" v-for="item in barTitle" :key="item"
-          :label="item.name != '权限' ? item.name : ''">
-          <el-input v-if="item.props != 'permissions'" v-model="form[item.props]" autocomplete="off" />
-          <el-form-item v-if="item.props === 'permissions'" label="权限">
-            <el-select placeholder="请选择类型" v-model="selected">
-              <el-option label="管理员" value="管理员" />
-              <el-option label="普通用户" value="普通用户" />
-            </el-select>
-          </el-form-item>
-        </el-form-item>
-        <el-form-item :label-width="formLabelWidth">
-          <el-button type="primary" @click="submitForm()">Submit</el-button>
-          <el-button @click="resetForm()">Reset</el-button>
-        </el-form-item>
-      </el-form>
-    </el-dialog> -->
-    <Dialog v-if="dialogFormVisible" @dialogShow="dialogFormVisible=false" :dialogFormVisible="dialogFormVisible" :barTitle="barTitle" :tableData="form"></Dialog>
+    <Dialog v-if="dialogIsShow" @submitForm="submit" @dialogShow="EmitDialogShow" :dialogFormVisible="dialogIsShow" :barTitle="barTitle" :tableData="form"></Dialog>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive } from 'vue'
-import { BarType } from '../interface/FormInterType'
+import { ref, reactive, provide, watch } from 'vue'
 import type { FormInstance } from 'element-plus'
+import { ElMessage } from 'element-plus'
+
+import { BarType } from '../interface/FormInterType'
 
 import '../components/Dialog.vue'
 import '../components/Dialog.vue';
@@ -51,69 +33,73 @@ const ruleForm = ref({
   age: '',
 })
 
+
+
 // 对类型进行限制
 interface Props {
   barTitle: Array<BarType>,
-  tableData: Array<String>
+  tableData: Array<String>,
+  dialogIsShow:boolean
 }
 
 // 提供初始值
 const props = withDefaults(defineProps<Props>(), {
   barTitle: () => [],
-  tableData: () => []
+  tableData: () => [],
+  dialogIsShow:false
 })
 
-// 点击编辑按钮后的模态框
-const dialogFormVisible = ref<boolean>(false)
+
 // 选择的类型
 const selected = ref('')
 // 触发事件，将数据传递给父组件
 const emit = defineEmits<{
   (e: 'submitForm', value: object, index: number): void,
-  (e: 'delete', index: number): void
+  (e: 'delete', index: number): void,
+  (e:'dialogShow',show:boolean):void
 }>()
 
 
 
 // 选择要编辑的索引值
 let indexEdit = ref<number>(0)
-// console.log(props.tableData[0])
 
 // 用来编辑表格数据
 let form = ref<any>({})
 // 点击编辑按钮的回调
 const handleEdit = (index: number, row: BarType) => {
-  dialogFormVisible.value = true
+  emit('dialogShow',true)
+  // dialogFormVisible.value = true
   indexEdit.value = index
   // 深拷贝
   form.value = { ...props.tableData[index] }
-  console.log(form.value)
-  // console.log(index, row)
 
 }
-
+// 向父组件传递在子组件填写的表格内容
+const submit = (value:object)=>{
+  emit('submitForm',value,indexEdit.value)
+}
 
 // 删除事件
 const handleDelete = (index: number, row: BarType) => {
-  // console.log(index, row)
   emit('delete', index)
 }
 
-
+// 关闭模态框显示
+const EmitDialogShow  = ()=>{
+  emit('dialogShow',false)
+}
 
 
 const ruleFormRef = ref<FormInstance>()
 const submitForm = () => {
-  // console.log(formEl)
 
   // 判断是否修改了权限
   if (selected.value != '') {
-    console.log('权限', selected.value)
     form.value['permissions'] = selected.value
   }
   emit('submitForm', form.value, indexEdit.value)
 
-  dialogFormVisible.value = false
 }
 
 // 重置
