@@ -24,7 +24,8 @@ import type { FormInstance } from 'element-plus'
 import { ElMessage } from 'element-plus'
 
 import { BarType } from '../interface/FormInterType'
-
+import {AuthUserType} from '../interface/AuthorityManageType'
+import {UserType} from '../interface/UserManageType'
 import '../components/Dialog.vue'
 import '../components/Dialog.vue';
 const ruleForm = ref({
@@ -55,7 +56,7 @@ const selected = ref('')
 // 触发事件，将数据传递给父组件
 const emit = defineEmits<{
   (e: 'submitForm', value: object, index: number): void,
-  (e: 'delete', index: number): void,
+  (e: 'delete', id: number,index:number): void,
   (e:'dialogShow',show:boolean):void
 }>()
 
@@ -67,7 +68,7 @@ let indexEdit = ref<number>(0)
 // 用来编辑表格数据
 let form = ref<any>({})
 // 点击编辑按钮的回调
-const handleEdit = (index: number, row: BarType) => {
+const handleEdit = (index: number, row: object) => {
   emit('dialogShow',true)
   // dialogFormVisible.value = true
   indexEdit.value = index
@@ -81,8 +82,9 @@ const submit = (value:object)=>{
 }
 
 // 删除事件
-const handleDelete = (index: number, row: BarType) => {
-  emit('delete', index)
+const handleDelete = (index: number, row: UserType & AuthUserType) => {
+  // console.log(row.id)
+  emit('delete', row.id,index)
 }
 
 // 关闭模态框显示

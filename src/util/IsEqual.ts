@@ -1,4 +1,3 @@
-import { User } from '../interface/UserManageType'
 function ObjectIsEqual(val:any,val2:any):boolean{
   // 获取对象或数组的键值
   const valKeys = Object.keys(val)

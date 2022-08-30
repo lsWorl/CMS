@@ -1,4 +1,4 @@
-interface User {
+interface UserType {
   id: number
   date: string
   name: string
@@ -7,5 +7,5 @@ interface User {
 }
 
 export {
-  type User
+  type UserType
 }

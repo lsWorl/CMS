@@ -29,7 +29,8 @@
       </div>
 
       <div>
-        <Dialog :idSum="tableData.length" v-if="dialogFormVisible" @dialogShow="dialogFormVisible = false"
+        <!-- v-if是为了动态挂载组件 -->
+        <Dialog v-if="dialogFormVisible" :idSum="tableLastId"  @dialogShow="dialogFormVisible = false"
           :barTitle="tableTitle" @submitForm="AddUser" :dialogFormVisible="dialogFormVisible"></Dialog>
       </div>
     </div>
@@ -45,39 +46,41 @@ import { ElMessage } from 'element-plus'
 
 import '../../components/Form.vue'
 import '../../components/Dialog.vue'
-import { User } from '../../interface/UserManageType'
+import { UserType } from '../../interface/UserManageType'
 import { BarType } from '../../interface/FormInterType'
 
 import http from '../../http/http'
 import { FormatT } from '../../util/TimeFormat'
 import { ObjectIsEqual } from '../../util/IsEqual'
-import { PhoneVerify , DateVerify} from '../../util/Verify'
+import { PhoneVerify, DateVerify } from '../../util/Verify'
 
 import { fa } from "element-plus/es/locale";
 
 // 向后端请求用户信息
 http.get('/users').then(res => {
-  // console.log(res.data)
+
   if (res.data.code === 1) {
-    // console.log(res.data.data[0])
-    res.data.data.forEach((el: User) => {
+
+    res.data.data.forEach((el: UserType) => {
       el.date = FormatT(el.date)
-      tableData.push(el)
+      tableData.value.push(el)
     })
+    
+    tableLastId.value = tableData.value[tableData.value.length -1].id
   }
 })
 
 // 提交表单后修改数据
-const changeValue = (item: User, index: number) => {
+const changeValue = (item: UserType, index: number) => {
 
-  if (ObjectIsEqual(tableData[index], item)) {
+  if (ObjectIsEqual(tableData.value[index], item)) {
     ElMessage({
       type: 'error',
       message: `数据没有发生变化！`,
     })
     return
   }
-  if(!DateVerify(item['date'])){
+  if (!DateVerify(item['date'])) {
     ElMessage({
       type: 'error',
       message: `日期格式不正确！`,
@@ -91,13 +94,27 @@ const changeValue = (item: User, index: number) => {
     })
     return
   }
+  
+  http.post('/users', item).then(res => {
+    if (res.data.code === 1) {
+      ElMessage({
+        type: 'success',
+        message: `成功更新用户数据！`,
+      })
+      formDialogShow.value = false
 
-  formDialogShow.value = false
-  // http.post('/users', item)
+    } else {
+      ElMessage({
+        type: 'error',
+        message: `更新失败，请稍后再试...`,
+      })
+    }
+  })
 }
 
 // 文本框内容
 const SearchContent = ref<string>('')
+
 // 选中的文本框的index
 const selected = ref<string>('')
 
@@ -135,12 +152,32 @@ const tableTitle = ref<BarType[]>([
 ])
 
 // 表格内容
-const tableData: User[] = reactive([])
+let tableData= ref<UserType[]>([])
+
+// 用于保存原先的数组
+const OriginData = tableData.value
+
+// 用于发请求时候获取最后一项的id
+let tableLastId = ref<number>(0)
 
 // 删除数据
-const deleteItem = (index: number) => {
-  console.log(index)
+const deleteItem = (id: number,index:number) => {
+  console.log(id)
+  http.delete('/users', { id: id }).then(res => {
+    console.log(res)
+    if (res.data.code === 1) {
+      ElMessage({
+        type: 'success',
+        message: `删除成功！`,
+      })
+      tableData.value.splice(index,1)
+    }
+  })
+
 }
+
+// 用来存放搜索到的数据
+let SearchResult = ref<UserType[]>([])
 
 // 选择输入框的类型
 const SelectData = () => {
@@ -152,21 +189,77 @@ const SelectData = () => {
     SearchContent.value = ''
     return
   } else if (selected.value === '1') {
-    console.log('姓名')
+    OriginData.forEach((item,index)=>{
+      // 找到后返回当前索引值
+      if(item.name.indexOf(SearchContent.value)!=-1){
+        SearchResult.value.push(OriginData[index]) 
+      }
+    })
+    tableData.value = SearchResult.value
+    SearchResult.value = []
+    // console.log('姓名内容：',SearchContent.value)
   } else if (selected.value === '2') {
-
+    OriginData.forEach((item,index)=>{
+      // 找到后返回当前索引值
+      if(item.phone.indexOf(SearchContent.value)!=-1){
+        SearchResult.value.push(OriginData[index]) 
+      }
+    })
+    tableData.value = SearchResult.value
+    SearchResult.value = []
   }
 }
 
 // 添加窗口是否显示
 const dialogFormVisible = ref(false)
+
 // 添加用户
-const AddUser = (value: User) => {
-  console.log(value)
-  http.put('/users', value)
+const AddUser = (item: UserType) => {
+
+  // 传过来的是一个数组，所以要进行解构
+  const obj = { ...item }
+  if (!obj.phone || !obj.name || !obj.address) {
+    ElMessage({
+      type: 'error',
+      message: `不能为空！`,
+    })
+    return
+  }
+  if (!DateVerify(obj['date'])) {
+    ElMessage({
+      type: 'error',
+      message: `日期格式不正确！`,
+    })
+    return
+  }
+  if (!PhoneVerify(obj['phone'])) {
+    ElMessage({
+      type: 'error',
+      message: `输入的不是手机号！`,
+    })
+    return
+  }
+  http.put('/users', obj).then(res => {
+    console.log(res)
+    if (res.data.code === 1) {
+      ElMessage({
+        type: 'success',
+        message: `添加成功！`,
+      })
+
+      tableData.value.push(obj)
+
+      dialogFormVisible.value = false
+      
+    } else {
+      ElMessage({
+        type: 'error',
+        message: res.data.errMsg,
+      })
+    }
+  })
 }
 
-// 将表单提交
 </script>
 
 <style lang="scss" scoped>

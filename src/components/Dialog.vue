@@ -5,7 +5,7 @@
         <el-form-item :label-width="formLabelWidth" v-for="item in barTitle" :key="item"
           :label="item.name != '权限' ? item.name : ''">
           <!-- 如果值为id则不可编辑，值为权限则为选择框 -->
-          <el-input v-if="item.props != 'permissions'" v-model="form[item.props]" maxlength="11" :disabled="item.props=='id'" autocomplete="off" />
+          <el-input v-if="item.props != 'permissions'" v-model="form[item.props]" maxlength="11" :disabled="item.props=='id'||item.props=='date'" autocomplete="off" />
           <el-form-item v-if="item.props === 'permissions'" label="权限">
             <el-select placeholder="请选择类型" v-model="selected">
               <el-option label="管理员" value="管理员" />
@@ -27,12 +27,17 @@ import { ref, reactive, onBeforeMount } from 'vue'
 import type { FormInstance } from 'element-plus'
 import { BarType } from '../interface/FormInterType'
 
+import {CreateTime} from '../util/TimeFormat'
+
 onBeforeMount(()=>{
   console.log('挂载',props.tableData)
   // id自增
   if(JSON.stringify(props.tableData)==='[]'){
-    console.log(props.idSum)
+    // console.log(props.idSum)
     props.tableData.id = props.idSum + 1
+    const NowDate = CreateTime()
+    props.tableData.date = NowDate
+    console.log(NowDate)
   }
   form.value = props.tableData
 })
@@ -67,16 +72,11 @@ const emit = defineEmits<{
 // 用来编辑表格数据
 let form = ref<any>({})
 const submitForm = () => {
-  // console.log(formEl)
-
   // 判断是否修改了权限
   if (selected.value != '') {
-    console.log('权限', selected.value)
     form.value['permissions'] = selected.value
   }
   emit('submitForm', form.value)
-
-  // emit('dialogShow')
 }
 
 // 重置
@@ -84,6 +84,7 @@ const resetForm = () => {
   selected.value = ''
 
   Object.keys(form.value).forEach(key => {
+    if(key==='id'||key==='date') return
     form.value[key] = ''
   })
 

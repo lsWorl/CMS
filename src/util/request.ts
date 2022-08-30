@@ -23,7 +23,7 @@ export default function request(config:config) {
   // 响应拦截器配置
   instance.interceptors.response.use(function (response) {
     console.log('响应拦截器')
-    console.log(response)
+    // console.log(response)
     // const { authorization } = response.headers
     // console.log(authorization)
     // authorization && localStorage.setItem('token', authorization)
