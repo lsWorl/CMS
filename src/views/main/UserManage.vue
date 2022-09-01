@@ -102,7 +102,7 @@ const changeValue = (item: UserType, index: number) => {
         message: `成功更新用户数据！`,
       })
       formDialogShow.value = false
-
+      tableData.value[index] = item
     } else {
       ElMessage({
         type: 'error',
@@ -162,9 +162,7 @@ let tableLastId = ref<number>(0)
 
 // 删除数据
 const deleteItem = (id: number,index:number) => {
-  console.log(id)
   http.delete('/users', { id: id }).then(res => {
-    console.log(res)
     if (res.data.code === 1) {
       ElMessage({
         type: 'success',

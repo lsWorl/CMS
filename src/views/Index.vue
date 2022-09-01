@@ -39,7 +39,7 @@
                 </el-icon>
                 <span>用户管理</span>
               </el-menu-item>
-              <el-menu-item index="authorityManage">
+              <el-menu-item index="/index/authorityManage">
                 <el-icon>
                   <icon-menu />
                 </el-icon>

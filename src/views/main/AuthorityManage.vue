@@ -65,6 +65,12 @@ const dialogFormVisible = ref(false)
 // 用于发请求时候获取最后一项的id
 let tableLastId = ref<number>(0)
 
+// 表格内容
+const tableData = ref<AuthUserType[]>([])
+
+// 用于保存原先的数组
+const OriginData = tableData.value
+
 // 向后端请求用户信息
 http.get('/loginUsers').then(res => {
 
@@ -72,7 +78,8 @@ http.get('/loginUsers').then(res => {
 
     res.data.data.forEach((el: AuthUserType) => {
       // 将权限设置为文字表示，0表示管理员，1表示普通用户
-      el.permissions = el.permissions.toString() === '0' ? '管理员' : '普通用户'
+      el.permissions = PermissionsChange(el.permissions)
+      // el.permissions = el.permissions.toString() === '0' ? '管理员' : '普通用户'
       tableData.value.push(el)
     })
 
@@ -80,6 +87,8 @@ http.get('/loginUsers').then(res => {
   }
 })
 
+// 用来存放搜索到的数据
+let SearchResult = ref<AuthUserType[]>([])
 
 // 选择输入框的类型
 const SelectData = () => {
@@ -91,9 +100,33 @@ const SelectData = () => {
     SearchContent.value = ''
     return
   } else if (selected.value === '1') {
-    console.log('姓名')
-  } else if (selected.value === '2') {
+    OriginData.forEach((item,index)=>{
+      // 找到后返回当前索引值
+      if(item.name.indexOf(SearchContent.value)!=-1){
+        SearchResult.value.push(OriginData[index]) 
+      }
+    })
+    tableData.value = SearchResult.value
+    SearchResult.value = []
 
+  } else if (selected.value === '2') {
+    OriginData.forEach((item,index)=>{
+      // 找到后返回当前索引值
+      if(item.phone.indexOf(SearchContent.value)!=-1){
+        SearchResult.value.push(OriginData[index]) 
+      }
+    })
+    tableData.value = SearchResult.value
+    SearchResult.value = []
+  } else if (selected.value === '3') {
+    OriginData.forEach((item,index)=>{
+      // 找到后返回当前索引值
+      if(item.permissions.indexOf(SearchContent.value)!=-1){
+        SearchResult.value.push(OriginData[index]) 
+      }
+    })
+    tableData.value = SearchResult.value
+    SearchResult.value = []
   }
 }
 
@@ -114,16 +147,44 @@ const changeValue = (item: AuthUserType, index: number) => {
       type: 'error',
       message: `数据没有发生变化！`,
     })
-
     return
   }
-  formDialogShow.value = false
-  console.log(tableData.value[index])
-  tableData.value[index] = item
+  if (!PhoneVerify(item['phone'])) {
+    ElMessage({
+      type: 'error',
+      message: `输入的不是手机号！`,
+    })
+    return
+  }
+  item.permissions = PermissionsChange(item.permissions)
+  http.post('/loginUsers', item).then(res => {
+    console.log(res)
+    if (res.data.code === 1) {
+      ElMessage({
+        type: 'success',
+        message: `成功更新用户数据！`,
+      })
+      formDialogShow.value = false
+      item.permissions = PermissionsChange(item.permissions)
+      tableData.value[index] = item
+    }
+  })
+
+
 }
 // 删除数据
-const deleteItem = (index: number) => {
-  console.log(index)
+const deleteItem = (id:number,index: number) => {
+  // console.log(id,index)
+  http.delete('/loginUsers',{id:id}).then(res=>{
+    console.log(res)
+    if(res.data.code===1){
+      ElMessage({
+        type: 'success',
+        message: `删除成功！`,
+      })
+      tableData.value.splice(index,1)
+    }
+  })
 }
 // 表格标题
 const tableTitle = ref<BarType[]>([
@@ -145,8 +206,7 @@ const tableTitle = ref<BarType[]>([
   },
 ])
 
-// 表格内容
-const tableData = ref<AuthUserType[]>([])
+
 
 // 添加用户
 const AddUser = (item: AuthUserType) => {
@@ -169,7 +229,8 @@ const AddUser = (item: AuthUserType) => {
   }
 
   // 将权限设置为数字表示，0表示管理员，1表示普通用户
-  obj.permissions = obj.permissions === '管理员' ? '0' : '1'
+  obj.permissions = PermissionsChange(obj.permissions)
+  // obj.permissions = obj.permissions === '管理员' ? '0' : '1'
   console.log(obj)
   http.put('/loginUsers', obj).then(res => {
     console.log(res)
@@ -190,6 +251,17 @@ const AddUser = (item: AuthUserType) => {
       })
     }
   })
+}
+
+
+// 将权限设置为数字表示，0表示管理员，1表示普通用户
+const PermissionsChange = (val: string | number): string => {
+  if (typeof val === 'number' || val === '0' || val === '1') {
+    val = val.toString() === '0' ? '管理员' : '普通用户'
+  } else {
+    val = val === '管理员' ? '0' : '1'
+  }
+  return val
 }
 </script>
 

@@ -12,11 +12,18 @@ export default function request(config:config) {
     }
   })
   // 请求拦截器
-  instance.interceptors.request.use(function (config) {
+  instance.interceptors.request.use(function (config:any) {
+    // 请求前判断token是否过期
+    const token = localStorage.getItem("token")
+    config.headers.Authorization = `Bearer ${token}`
     console.log('请求发出前拦截器')
     return config;
   }, function (error) {
     console.log('请求发出前拦截器出现了错误')
+    if(error.response.status===401){
+      localStorage.removeItem('token')
+      location.href = '/login'
+    }
     return Promise.reject(error);
   });
 
@@ -24,9 +31,9 @@ export default function request(config:config) {
   instance.interceptors.response.use(function (response) {
     console.log('响应拦截器')
     // console.log(response)
-    // const { authorization } = response.headers
-    // console.log(authorization)
-    // authorization && localStorage.setItem('token', authorization)
+    // console.log(response.headers)
+    const { authorization } = response.headers
+    authorization && localStorage.setItem('token', authorization)
     return response;
   }, function (error) {
     console.log('响应拦截器出现了错误')
