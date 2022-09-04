@@ -60,7 +60,7 @@ import { fa } from "element-plus/es/locale";
 http.get('/users').then(res => {
 
   if (res.data.code === 1) {
-
+    console.log(res)
     res.data.data.forEach((el: UserType) => {
       el.date = FormatT(el.date)
       tableData.value.push(el)
@@ -252,7 +252,7 @@ const AddUser = (item: UserType) => {
     } else {
       ElMessage({
         type: 'error',
-        message: res.data.errMsg,
+        message: res.data.errMsg || res.data.sqlMessage,
       })
     }
   })

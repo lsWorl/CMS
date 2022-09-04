@@ -12,7 +12,7 @@
       </el-table>
     </div>
     <div class="margin-top-16">
-      <el-pagination small background layout="prev, pager, next" :total="100" />
+      <el-pagination small background layout="prev, pager, next" :total="20" />
     </div>
     <Dialog v-if="dialogIsShow" @submitForm="submit" @dialogShow="EmitDialogShow" :dialogFormVisible="dialogIsShow" :barTitle="barTitle" :tableData="form"></Dialog>
   </div>

@@ -109,7 +109,7 @@ const Login = (): void => {
     })
     return
   }
-  console.log()
+  
 
   http.post('/loginUsers/login', {
     name: loginUserName.value,
@@ -118,6 +118,7 @@ const Login = (): void => {
   }).then(res => {
     console.log(res)
     if(res.data.code===1){
+      localStorage.setItem('userInfo',JSON.stringify(res.data.data))
       router.push('/index')
     }else{
       ElMessage({

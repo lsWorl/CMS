@@ -22,6 +22,7 @@ export default function request(config:config) {
     console.log('请求发出前拦截器出现了错误')
     if(error.response.status===401){
       localStorage.removeItem('token')
+      localStorage.removeItem('userInfo')
       location.href = '/login'
     }
     return Promise.reject(error);
@@ -40,11 +41,11 @@ export default function request(config:config) {
     switch(error.response.status){
       case 401:
         console.log('无权访问')
-        router.push({path:'/login'})
+        router.push('/login')
         break
       case 403:
         console.log('token过期')
-        router.push({path:'/login'})
+        router.push('/login')
         break
       case 404:
         console.log('404')
