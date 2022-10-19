@@ -1,6 +1,6 @@
 # app管理系统
 
-该项目采用`Vue3.2 + vite + typescript + element plus`搭建，该项目作为一个全栈项目，与另一个仓库的项目为配套，并且还有一个专门显示，使用`uniapp`开发的应用。
+该项目采用`Vue3.2 + vite + typescript + element plus`搭建，该项目作为一个全栈项目，与另一个仓库的项目为配套，并且还有一个专门显示，使用`Flutter`开发的应用。
 
 
 
